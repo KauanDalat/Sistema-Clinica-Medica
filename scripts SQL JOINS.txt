@@ -1,0 +1,106 @@
+-- COMANDOS BASICOS PARA VISUALIZAR AS TABELAS
+select * from usuario ORDER BY id
+
+select * from paciente_convenio
+
+select * from paciente
+
+select * from especialidade
+
+select * from medico_especialidade
+
+select * from medico
+
+select * from convenio
+
+select * from recepcionista
+
+select * from atendimento
+
+-- SELECT PARA MOSTRAR O MEDICO QUE ATENDEU DETERMINADO PACIENTE
+
+SELECT 
+	a.id_atendimento,
+	a.status,
+	a.data_hora_atendimento,
+	u_medico.nome AS nome_medico,
+	u_paciente.nome AS nome_paciente,
+	a.anamnese
+
+FROM atendimento a
+INNER JOIN usuario u_paciente ON a.id_paciente = u_paciente.id
+INNER JOIN usuario u_medico ON a.id_medico = u_medico.id
+
+
+-- SELECT PARA MOSTRAR QUAIS CONVENIOS OS PACIENTES TEM
+
+SELECT 
+    a.id_paciente,
+    u.nome AS nome_paciente,
+    c.nome AS nome_convenio
+FROM atendimento a
+INNER JOIN usuario u ON a.id_paciente = u.id
+INNER JOIN paciente_convenio pc ON a.id_paciente = pc.id_paciente
+INNER JOIN convenio c ON pc.id_convenio = c.id;
+
+
+-- SELECT PARA MOSTRAR A RECEPCIONISTA QUE ATENDEU AQUELE PACIENTE, USEI O LEFT JOIN NESSE CASO PARA DAR PRIORIDADE PARA A TABELA DA ESQUERDA E POR ISSO NAO MOSTRA 
+-- OS RESULTADOS DE nome_paciente POR APRESENTAR ALGUNS VALORES EM NULL, POR ISSO ELE IGNORA TOTALMENTE TODOS OS OUTROS
+SELECT 
+	a.id_recepcionista,
+	u_recep.nome AS nome_recepcionista,
+	a.id_paciente,
+	u_pac.nome AS nome_paciente
+FROM atendimento a
+LEFT JOIN usuario u_recep ON a.id_recepcionista = u_recep.id
+LEFT JOIN usuario u_pac ON a.id_paciente = u_recep.id;
+
+
+-- NESSE CASO VAI DAR PRIORIDADE A TABELA nome_paciente MOSTRANDO ATE OS CAMPOS QUE ESTAO EM NULL E IGNORANDO TOTALMENTE A TABELA DA ESQUERDA
+SELECT 
+	a.id_recepcionista,
+	u_recep.nome AS nome_recepcionista,
+	a.id_paciente,
+	u_pac.nome AS nome_paciente
+FROM atendimento a
+RIGHT JOIN usuario u_recep ON a.id_recepcionista = u_recep.id
+RIGHT JOIN usuario u_pac ON a.id_paciente = u_recep.id;
+
+
+
+-- SELECT PARA MOSTRAR QUAL MEDICO ATENDEU DETERMINADO PACIENTE
+SELECT 
+	a.id_medico,
+	u_med.nome AS nome_medico,
+	a.id_paciente,
+	u_pac.nome AS nome_paciente
+
+FROM atendimento a
+INNER JOIN usuario u_med ON a.id_medico = u_med.id
+INNER JOIN usuario u_pac ON a.id_paciente = u_pac.id;
+
+
+
+-- SELECT PARA MOSTRAR A ESPECIALIDADE DAQUELE DETERMINADO MEDICO
+SELECT 
+    a.id_medico,
+    u_med.nome AS nome_medico,
+    e.id AS id_especialidade,
+    e.nome_especialidade AS nome_especialidade
+FROM atendimento a 
+INNER JOIN usuario u_med ON a.id_medico = u_med.id
+INNER JOIN medico_especialidade me ON a.id_medico = me.id_medico
+INNER JOIN especialidade e ON me.id_especialidade = e.id;
+
+
+
+
+-- SELECT PARA MOSTRAR FATURAMENTO DE CADA MEDICO E O TOTAL DE ATENDIMENTOS 
+SELECT 
+    u_med.nome AS nome_medico,
+    COUNT(a.id_atendimento) AS total_atendimentos,
+    SUM(a.valor_consulta) AS faturamento_total
+FROM atendimento a
+INNER JOIN usuario u_med ON a.id_medico = u_med.id
+GROUP BY u_med.nome;
+
