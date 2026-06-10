@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinica Medica - Painel do Sistema</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    /* ── VARIÁVEIS DE AMBIENTE & TEMA FIXO CLEAN ── */
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f8fafc;
+      --color-background-tertiary: #f1f5f9;
+      --color-border-primary: #e2e8f0;
+      --color-border-secondary: #cbd5e1;
+      --color-border-tertiary: #cbd5e1;
+      --color-text-primary: #0f172a;
+      --color-text-secondary: #475569;
+      --color-text-tertiary: #94a3b8;
+      --color-text-danger: #ef4444;
+      --color-background-danger: #fef2f2;
+      --color-border-danger: #fca5a5;
+      --color-text-success: #15803d;
+      --color-background-success: #f0fdf4;
+      --color-border-success: #bbf7d0;
+      --border-radius-sm: 6px;
+      --border-radius-md: 10px;
+      --border-radius-lg: 16px;
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: var(--font-sans); 
+      background: var(--color-background-tertiary); 
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    /* ── SCREEN DE AUTENTICAÇÃO ── */
+    #auth-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #e0f2fe 0%, #f1f5f9 100%);
+    }
+    .auth-card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 2.5rem 2.25rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-md);
+    }
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .auth-logo-icon {
+      width: 42px; height: 42px;
+      background: var(--primary-color);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      align-items: center; justify-content: center;
+      color: #ffffff;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+    }
+    .auth-logo-text { 
+      font-size: 22px; 
+      font-weight: 700; 
+      color: var(--color-text-primary);
+      letter-spacing: -0.02em;
+    }
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--color-border-primary);
+      margin-bottom: 1.75rem;
+      gap: 8px;
+    }
+    .auth-tab {
+      flex: 1; padding: 0.75rem;
+      font-size: 14px; font-weight: 500;
+      color: var(--color-text-secondary);
+      background: none;
+      border: none; cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .auth-tab:hover { color: var(--primary-color); }
+    .auth-tab.active { 
+      color: var(--primary-color); 
+      border-bottom-color: var(--primary-color); 
+      font-weight: 600; 
+    }
+
+    /* ── ELEMENTOS DE FORMULÁRIO ── */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { 
+      display: block; 
+      font-size: 13px; 
+      font-weight: 600;
+      color: var(--color-text-secondary); 
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0 14px;
+      height: 40px; font-size: 14px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      outline: none;
+      transition: all 0.15s ease-in-out;
+      font-family: var(--font-sans);
+    }
+    .form-group textarea { height: auto; padding: 10px 14px; resize: vertical; min-height: 90px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); 
+    }
+
+    /* BOTÕES */
+    .btn-primary {
+      width: 100%; padding: 0 16px; height: 42px;
+      font-size: 14px; font-weight: 600;
+      background: var(--primary-color); color: #ffffff;
+      border: none; border-radius: var(--border-radius-sm);
+      cursor: pointer; margin-top: 0.75rem;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-submit {
+      padding: 0 22px; height: 40px;
+      font-size: 14px; font-weight: 600;
+      background: var(--primary-color); color: #ffffff;
+      border: none; border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-submit:hover { background: var(--primary-hover); }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      padding: 0 18px; height: 40px;
+      font-size: 14px; font-weight: 500;
+      background: transparent; color: var(--color-text-secondary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-sm);
+      cursor: pointer; margin-right: 10px;
+      transition: all 0.15s ease;
+    }
+    .btn-secondary:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+    .form-actions { margin-top: 1.5rem; display: flex; align-items: center; justify-content: flex-end; }
+
+    /* ALERTAS */
+    .auth-error, .form-danger {
+      font-size: 13px; color: var(--color-text-danger);
+      background: var(--color-background-danger);
+      border: 1px solid var(--color-border-danger);
+      border-radius: var(--border-radius-sm);
+      padding: 10px 14px; margin-bottom: 1.25rem;
+    }
+    .auth-success, .form-success {
+      font-size: 13px; color: var(--color-text-success);
+      background: var(--color-background-success);
+      border: 1px solid var(--color-border-success);
+      border-radius: var(--border-radius-sm);
+      padding: 10px 14px; margin-bottom: 1.25rem;
+    }
+
+    /* ── APP SCREEN ── */
+    #app-screen { flex-direction: row; min-height: 100vh; }
+    .sidebar { width: 260px; min-width: 260px; background: #0f172a; display: flex; flex-direction: column; padding: 1.5rem 0; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1.5rem; }
+    .sidebar-logo-icon { width: 32px; height: 32px; background: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 16px; }
+    .sidebar-logo-text { font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em; }
+    .sidebar-section-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 1.5rem; margin-bottom: 0.6rem; }
+    
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 0.7rem 1.5rem; font-size: 14px; font-weight: 500; color: #94a3b8;
+      cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: all 0.15s ease; border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; }
+    .nav-item.active { color: #ffffff; background: rgba(2, 132, 199, 0.15); border-left-color: var(--primary-color); font-weight: 600; }
+    .nav-item i { font-size: 18px; opacity: 0.8; }
+    .nav-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 1rem 0; }
+    .sidebar-bottom { margin-top: auto; padding: 0 1rem; }
+    
+    .user-pill { display: flex; align-items: center; gap: 10px; padding: 0.75rem; border-radius: var(--border-radius-md); background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.05); }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: #e0f2fe; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #0369a1; flex-shrink: 0; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 600; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 11px; color: #64748b; font-weight: 500; }
+    
+    .logout-btn { background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px; padding: 6px; border-radius: 6px; transition: all 0.15s ease; }
+    .logout-btn:hover { color: var(--color-text-danger); background: rgba(239, 68, 68, 0.1); }
+
+    .main-content { flex: 1; overflow-y: auto; background: var(--color-background-tertiary); }
+    .page { display: none; padding: 2rem 2.5rem; animation: fadeIn 0.25s ease; }
+    .page.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h2 { font-size: 24px; font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.02em; margin-bottom: 6px; }
+    .page-header p { font-size: 14px; color: var(--color-text-secondary); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 2rem; }
+    .stat-card { background: var(--color-background-primary); border: 1px solid var(--color-border-primary); border-radius: var(--border-radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); }
+    .stat-label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.03em; }
+
+    .card { background: var(--color-background-primary); border: 1px solid var(--color-border-primary); border-radius: var(--border-radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
+    .card-title { font-size: 16px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; letter-spacing: -0.01em; }
+    .card-title i { font-size: 20px; color: var(--primary-color); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+    .table-wrapper { overflow-x: auto; border: 1px solid var(--color-border-primary); border-radius: var(--border-radius-sm); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--color-background-primary); }
+    thead tr { background: var(--color-background-secondary); border-bottom: 1px solid var(--color-border-primary); }
+    th { font-weight: 600; font-size: 12px; color: var(--color-text-secondary); text-align: left; padding: 12px 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--color-border-primary); color: var(--color-text-primary); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background-color: var(--color-background-secondary); }
+
+    .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1; }
+    .badge-blue { background: #e0f2fe; color: #0369a1; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-amber { background: #fef3c7; color: #b45309; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--color-text-tertiary); font-size: 15px; }
+    .empty-state i { font-size: 44px; display: block; margin-bottom: 1rem; color: var(--color-text-tertiary); opacity: 0.6; }
+    .required { color: var(--color-text-danger); font-weight: 700; margin-left: 2px; }
+  </style>
+</head>
+<body>
+
+  <div id="auth-screen" class="screen active">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><i class="ti ti-activity-heartbeat"></i></div>
+        <div class="auth-logo-text">Clinica Medica</div>
+      </div>
+      
+      <div class="auth-tabs">
+        <button id="tab-login" class="auth-tab active" onclick="switchTab('login')">Entrar</button>
+        <button id="tab-register" class="auth-tab" onclick="switchTab('register')">Criar conta</button>
+      </div>
+
+      <div id="auth-error" class="auth-error" style="display:none;"></div>
+      <div id="auth-success" class="auth-success" style="display:none;"></div>
+
+      <div id="form-login">
+        <div class="form-group">
+          <label for="log-email">E-mail de acesso</label>
+          <input type="email" id="log-email" placeholder="nome@provedor.com">
+        </div>
+        <div class="form-group">
+          <label for="log-password">Senha de acesso</label>
+          <input type="password" id="log-password" placeholder="••••••••">
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Acessar Painel</button>
+      </div>
+
+      <div id="form-register" style="display:none;">
+        <div class="form-group">
+          <label for="reg-name">Nome Completo</label>
+          <input type="text" id="reg-name" placeholder="Ex: Kauan Oliveira">
+        </div>
+        <div class="form-group">
+          <label for="reg-cpf">CPF (Apenas números)</label>
+          <input type="text" id="reg-cpf" placeholder="000.000.000-00" required>
+        </div>
+        <div class="form-group">
+          <label for="reg-type">Tipo de Perfil Clínico</label>
+          <select id="reg-type">
+            <option value="paciente">Paciente</option>
+            <option value="medico">Médico / Especialista</option>
+            <option value="recepcionista">Recepcionista / Atendente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="reg-email">E-mail</label>
+          <input type="email" id="reg-email" placeholder="seuemail@provedor.com">
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Senha (mín. 6 dígitos)</label>
+          <input type="password" id="reg-password" placeholder="Defina uma senha">
+        </div>
+        <div class="form-group">
+          <label for="reg-confirm">Confirmar Senha</label>
+          <input type="password" id="reg-confirm" placeholder="Repita a senha">
+        </div>
+        <button class="btn-primary" onclick="doRegister()">Finalizar Cadastro</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-screen" class="screen">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"><i class="ti ti-activity-heartbeat"></i></div>
+        <div class="sidebar-logo-text">Clinica Medica</div>
+      </div>
+      
+      <nav style="flex:1;">
+        <div class="sidebar-section-label">Operações</div>
+        <button id="nav-dash" class="nav-item active" onclick="switchPage('dash')">
+          <i class="ti ti-layout-dashboard"></i>Dashboard
+        </button>
+        <button id="nav-clients" class="nav-item" onclick="switchPage('clients')">
+          <i class="ti ti-address-book"></i>Clientes / Pacientes
+        </button>
+        <button id="nav-atend" class="nav-item" onclick="switchPage('atend')">
+          <i class="ti ti-heart-rate-monitor"></i>Novo Atendimento
+        </button>
+        <div class="nav-divider"></div>
+        <div class="sidebar-section-label">Cadastros</div>
+        <button id="nav-users" class="nav-item" onclick="switchPage('users')">
+          <i class="ti ti-users"></i>Usuários / Perfis
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="user-pill">
+          <div class="user-avatar" id="user-avatar">??</div>
+          <div class="user-info">
+            <div class="user-name" id="user-name">Usuário</div>
+            <div class="user-role" id="user-role">Perfil</div>
+          </div>
+          <button class="logout-btn" onclick="doLogout()" title="Sair do sistema">
+            <i class="ti ti-logout"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div id="page-clients" class="page">
+  <div class="page-header">
+    <h2>Clientes e Pacientes Cadastrados</h2>
+    <p>Consulta detalhada de todos os pacientes ativos no banco de dados</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-users"></i>Ficha Completa dos Pacientes</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome Completo</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Data Nasc.</th>
+            <th>Gênero</th>
+          </tr>
+        </thead>
+        <tbody id="table-clients"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+      <div id="page-dash" class="page active">
+        <div class="page-header">
+          <h2>Indicadores de Atendimento</h2>
+          <p>Visão em tempo real da volumetria e status da clínica</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total de Registros</div>
+            <div class="stat-value" id="stat-total">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Em Aberto</div>
+            <div class="stat-value" id="stat-open" style="color:var(--primary-color);">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Concluídos</div>
+            <div class="stat-value" id="stat-closed" style="color:var(--color-text-success);">0</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-list"></i>Histórico Recente</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cód</th>
+                  <th>ID Paciente</th>
+                  <th>ID Médico</th>
+                  <th>ID Recepcionista</th>
+                  <th>Urgência / Queixa</th>
+                  <th>Status</th>
+                  <th>Data Registro</th>
+                </tr>
+              </thead>
+              <tbody id="table-tickets"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-atend" class="page">
+        <div class="page-header">
+          <h2>Registrar Atendimento Clínico</h2>
+          <p>Vinculação estrita baseada nas chaves primárias do banco de dados</p>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-clipboard-text"></i>Formulário de Entrada Relacional</div>
+          <div id="atend-success" class="form-success" style="display:none;"></div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>ID do Paciente <span class="required">*</span></label>
+              <input type="number" id="at-client" placeholder="Ex: 3">
+            </div>
+            <div class="form-group">
+              <label>ID do Médico Responsável <span class="required">*</span></label>
+              <input type="number" id="at-responsible" placeholder="Ex: 1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>ID do Recepcionista <span class="required">*</span></label>
+              <input type="number" id="at-recep" placeholder="Ex: 2">
+            </div>
+            <div class="form-group">
+              <label>Valor da Consulta (R$)</label>
+              <input type="number" step="0.01" id="at-valor" value="150.00">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Anamnese<span class="required">*</span></label>
+            <input type="text" id="at-subject" placeholder="Paciente relata dor de cabeça intensa e náuseas desde ontem.">
+          </div>
+          <div class="form-actions">
+            <button class="btn-secondary" onclick="switchPage('dash')">Cancelar</button>
+            <button class="btn-submit" onclick="saveTicket()">Finalizar Consulta</button>
+          </div>
+        </div>
+      </div>
+
+     <div id="page-users" class="page">
+        <div class="page-header">
+          <h2>Gerenciamento de Usuários e Perfis</h2>
+          <p>Mapeamento unificado de Pacientes, Médicos e Atendentes no sistema</p>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; align-items:start;">
+          
+          <div class="card">
+            <div class="card-title"><i class="ti ti-user-plus"></i>Criar Novo Usuário</div>
+            <div id="cad-success" class="form-success" style="display:none;"></div>
+            
+            <div class="form-group">
+              <label>Nome Completo<span class="required">*</span></label>
+              <input type="text" id="cad-name" placeholder="Nome do usuário">
+            </div>
+            
+            <div class="form-group">
+              <label>E-mail / Contato<span class="required">*</span></label>
+              <input type="email" id="cad-email" placeholder="nome@provedor.com">
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>CPF (Apenas números)<span class="required">*</span></label>
+                <input type="text" id="cad-cpf" placeholder="000.000.000-00">
+              </div>
+              <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" id="cad-phone" placeholder="62 99999-9999">
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Data de Nascimento<span class="required">*</span></label>
+                <input type="date" id="cad-birth" required>
+              </div>
+              <div class="form-group">
+                <label>Gênero</label>
+                <select id="cad-genero">
+                  <option value="M">Masculino (M)</option>
+                  <option value="F">Feminino (F)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tipo de Perfil Clínico</label>
+                <select id="cad-role">
+                  <option value="paciente">Paciente</option>
+                  <option value="medico">Médico / Especialista</option>
+                  <option value="recepcionista">Recepcionista / Atendente</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-actions" style="margin-top:1rem;">
+              <button class="btn-submit" onclick="saveUser()">Salvar usuário</button>
+            </div>
+          </div> <div class="card">
+            <div class="card-title"><i class="ti ti-list-details"></i>Usuários Cadastrados</div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Perfil</th>
+                    <th>CPF</th>
+                  </tr>
+                </thead>
+                <tbody id="table-users"></tbody>
+              </table>
+            </div>
+          </div> </div> </div> 
+    </main>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000";
+    let clients = [];
+    let currentSession = null;
+    let users = [];
+    let tickets = [];
+
+    function switchTab(tab) {
+      document.getElementById('auth-error').style.display = 'none';
+      document.getElementById('auth-success').style.display = 'none';
+      if(tab === 'login') {
+        document.getElementById('tab-login').classList.add('active');
+        document.getElementById('tab-register').classList.remove('active');
+        document.getElementById('form-login').style.display = 'block';
+        document.getElementById('form-register').style.display = 'none';
+      } else {
+        document.getElementById('tab-register').classList.add('active');
+        document.getElementById('tab-login').classList.remove('active');
+        document.getElementById('form-register').style.display = 'block';
+        document.getElementById('form-login').style.display = 'none';
+      }
+    }
+
+    function showAuthError(msg) {
+      const el = document.getElementById('auth-error');
+      el.textContent = msg; el.style.display = 'block';
+      document.getElementById('auth-success').style.display = 'none';
+    }
+    function showAuthSuccess(msg) {
+      const el = document.getElementById('auth-success');
+      el.textContent = msg; el.style.display = 'block';
+      document.getElementById('auth-error').style.display = 'none';
+    }
+
+    async function doLogin() {
+  const email = document.getElementById('log-email').value.trim().toLowerCase();
+  const pass = document.getElementById('log-password').value;
+
+  if (!email || !pass) return showAuthError('Preencha as credenciais.');
+  try {
+    const resposta = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha: pass })
+    });
+    const resultado = await resposta.json();
+
+    if (resposta.ok) {
+      currentSession = resultado.usuario;
+      
+      // NOVA LINHA: Salva os dados do usuário permanentemente no navegador
+      localStorage.setItem('clinicamedica_session', JSON.stringify(currentSession));
+
+      document.getElementById('user-name').textContent = currentSession.nome;
+      document.getElementById('user-role').textContent = 'Conectado';
+      document.getElementById('user-avatar').textContent = currentSession.nome.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      document.getElementById('auth-screen').classList.remove('active');
+      document.getElementById('app-screen').classList.add('active');
+      document.getElementById('log-email').value = '';
+      document.getElementById('log-password').value = '';
+      initData();
+    } else {
+      showAuthError(resultado.message);
+    }
+  } catch (erro) {
+    showAuthError('Não foi possível conectar ao servidor para autenticar.');
+  }
+}
+
+    async function doRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const cpf = document.getElementById('reg-cpf').value.trim();
+      const type = document.getElementById('reg-type').value;
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const pass = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm').value;
+
+      if (!name || !cpf || !email || !pass || !confirm) return showAuthError('Preencha todos os campos obrigatórios.');
+      if (pass.length < 6) return showAuthError('A senha requer o tamanho mínimo de 6 dígitos.');
+      if (pass !== confirm) return showAuthError('Os campos de checagem de senha divergem.');
+
+      const dados = {
+        nome: name,
+        cpf: cpf,          
+        email: email,
+        telefone: '00 00000-0000',       
+        data_nascimento: '2000-01-01',   
+        genero: 'M',
+        tipo: type,
+        senha: pass 
+      };
+
+      try {
+        const resposta = await fetch(`${API_URL}/usuarios`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+          showAuthSuccess(`Conta salva no Postgres! ID gerado: ${resultado.id}. Faça Login.`);
+          document.getElementById('reg-name').value = '';
+          document.getElementById('reg-cpf').value = '';
+          document.getElementById('reg-email').value = '';
+          document.getElementById('reg-password').value = '';
+          document.getElementById('reg-confirm').value = '';
+          setTimeout(() => switchTab('login'), 2000);
+        } else {
+          showAuthError('Erro disparado pelo Postgres: ' + (resultado.detail || resultado.message));
+        }
+      } catch (erro) {
+        showAuthError('Não foi possível conectar ao back-end.');
+      }
+    }
+
+    function doLogout() {
+  currentSession = null;
+  
+  // NOVA LINHA: Apaga a sessão salva ao clicar em Sair
+  localStorage.removeItem('clinicamedica_session');
+
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('active');
+  switchTab('login');
+}
+
+    function switchPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(`page-${pageId}`).classList.add('active');
+      document.getElementById(`nav-${pageId}`).classList.add('active');
+    }
+
+    // FUNÇÃO ATUALIZADA: Puxa os dados antigos e novos direto do PostgreSQL
+async function initData() {
+  try {
+    // Puxa os Usuários gerais
+    const resUsers = await fetch(`${API_URL}/usuarios`);
+    if (resUsers.ok) { users = await resUsers.json(); renderUsers(); }
+
+    // Puxa os Atendimentos
+    const resAtend = await fetch(`${API_URL}/atendimentos`);
+    if (resAtend.ok) { tickets = await resAtend.json(); renderTickets(); }
+
+    // NOVO: Puxa os Pacientes específicos do banco
+    const resClients = await fetch(`${API_URL}/clientes`);
+    if (resClients.ok) {
+      clients = await resClients.json();
+      renderClients(); // Chama a renderização da tabela
+    }
+
+    updateDashboard();
+  } catch (erro) {
+    console.error("Erro ao carregar dados iniciais:", erro);
+  }
+}
+
+    function clearForm(prefix) {
+      if(prefix === 'cad') {
+        document.getElementById('cad-name').value = '';
+        document.getElementById('cad-email').value = '';
+        document.getElementById('cad-cpf').value = '';
+        document.getElementById('cad-phone').value = '';
+        document.getElementById('cad-birth').value = ''; // Adicione essa linha aqui
+      } else if(prefix === 'at') {
+        document.getElementById('at-client').value = '';
+        document.getElementById('at-recep').value = '';
+        document.getElementById('at-subject').value = '';
+        document.getElementById('at-desc').value = '';
+        document.getElementById('at-responsible').value = '';
+      }
+    }
+
+    async function saveUser() {
+      const name = document.getElementById('cad-name').value.trim();
+      const email = document.getElementById('cad-email').value.trim();
+      const cpf = document.getElementById('cad-cpf').value.trim();
+      const phone = document.getElementById('cad-phone').value.trim();
+      const role = document.getElementById('cad-role').value;
+      const genero = document.getElementById('cad-genero').value;
+      
+      // Captura a nova data de nascimento informada na tela
+      const birthDate = document.getElementById('cad-birth').value;
+
+      if (!name || !email || !cpf || !birthDate) { 
+        alert('Nome, CPF, E-mail e Data de Nascimento constituem campos obrigatórios.');
+        return;
+      }
+
+      const dados = {
+        nome: name,
+        cpf: cpf,
+        email: email,
+        telefone: phone || '62 90000-0000',
+        data_nascimento: birthDate, // Envia a data real selecionada
+        genero: genero,
+        tipo: role,
+        senha: '123456' // Senha padrão para novos usuários
+      };
+
+      try {
+        const resposta = await fetch(`${API_URL}/usuarios`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const resultado = await resposta.json();
+        
+        if (resposta.ok) {
+          const el = document.getElementById('cad-success');
+          el.textContent = `Usuário inserido no Postgres com sucesso! ID: ${resultado.id}`;
+          el.style.display = 'block';
+          users.push({ name, email, cpf, role });
+          clearForm('cad');
+          document.getElementById('cad-birth').value = ''; // Limpa o campo de data
+          renderUsers();
+          setTimeout(() => { el.style.display = 'none'; }, 4000);
+        } else {
+          alert('Rejeitado pelo banco: ' + (resultado.detail || resultado.message));
+        }
+      } catch (erro) {
+        alert('Servidor Node inacessível.');
+      }
+    }
+
+  async function saveTicket() {
+  const idPaciente = parseInt(document.getElementById('at-client').value);
+  const idMedico = parseInt(document.getElementById('at-responsible').value);
+  const idRecepcionista = parseInt(document.getElementById('at-recep').value);
+  const valor = parseFloat(document.getElementById('at-valor').value);
+  
+  // Captura o texto do campo que você alterou para Anamnese
+  const anamneseTexto = document.getElementById('at-subject').value.trim();
+
+  if (!idPaciente || !idMedico || !idRecepcionista || !anamneseTexto) { 
+    alert('Por favor, preencha todos os campos obrigatórios (*).');
+    return;
+  }
+
+  // O objeto enviado para o servidor precisa ter a propriedade exata 'anamnese'
+  const dados = {
+    id_paciente: idPaciente, 
+    id_medico: idMedico, 
+    id_recepcionista: idRecepcionista, 
+    valor: valor,
+    anamnese: anamneseTexto
+  };
+
+  try {
+    const resposta = await fetch(`${API_URL}/atendimentos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
+    const resultado = await resposta.json();
+
+    if (resposta.ok) {
+      const el = document.getElementById('atend-success');
+      el.textContent = `Atendimento gravado no PostgreSQL!`;
+      el.style.display = 'block';
+      
+      const now = new Date();
+      const date = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+      
+      // Insere localmente com a propriedade anamnese alinhada com o banco de dados
+      tickets.push({ 
+        id: idPaciente,
+        id_paciente: idPaciente,
+        id_medico: idMedico,
+        id_recepcionista: idRecepcionista,
+        anamnese: anamneseTexto,
+        status: 'Agendado',
+        date: date
+      });
+      
+      clearForm('at');
+      updateDashboard();
+      renderTickets(); 
+      setTimeout(() => { el.style.display = 'none'; }, 4000);
+    } else {
+      alert('Erro no banco: ' + (resultado.message || 'Verifique se os IDs informados existem nas tabelas do Postgres.'));
+    }
+  } catch (erro) {
+    alert('Sem resposta do back-end. Certifique-se de que o server.js está rodando.');
+  }
+}
+    function updateDashboard() {
+      document.getElementById('stat-total').textContent = tickets.length;
+      document.getElementById('stat-open').textContent = tickets.filter(t => t.status === 'Aberto').length;
+      document.getElementById('stat-closed').textContent = tickets.filter(t => t.status === 'Concluído').length;
+    }
+
+    function priorityBadge(p) {
+      return '<span class="badge badge-blue">Média</span>';
+    }
+
+    function statusBadge(s) {
+      return '<span class="badge badge-blue">Aberto</span>';
+    }
+
+    function renderUsers() {
+  const tbody = document.getElementById('table-users');
+  if(!users.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--color-text-tertiary); padding:2rem;">Nenhum usuário cadastrado nesta sessão</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td style="font-weight:600;">${u.nome || u.name || 'Não Informado'}</td>
+      <td style="color:var(--color-text-secondary);">${u.email}</td>
+      <td><span class="badge badge-blue">${u.role}</span></td>
+      <td style="color:var(--color-text-tertiary); font-size:12px;">${u.cpf}</td>
+    </tr>`).join('');
+}
+
+    function renderClients() {
+  const tbody = document.getElementById('table-clients');
+  if (!clients.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--color-text-tertiary); padding:2rem;">Nenhum cliente retornado do Postgres</td></tr>';
+    return;
+  }
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td><code style="font-size:12px; color:#0284c7;">#${c.id}</code></td>
+      <td style="font-weight:600;">${c.nome}</td>
+      <td>${c.cpf}</td>
+      <td style="color:var(--color-text-secondary);">${c.email}</td>
+      <td>${c.telefone}</td>
+      <td>${c.data_nasc}</td>
+      <td><span class="badge badge-gray">${c.genero}</span></td>
+    </tr>`).join('');
+}
+
+// 2. FUNÇÃO RENDERIZAR ATENDIMENTOS CORRIGIDA
+function renderTickets() {
+  const tbody = document.getElementById('table-tickets');
+  if (!tickets.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="ti ti-clipboard-list"></i>Nenhum atendimento registrado</div></td></tr>';
+    return;
+  }
+  
+  // Renderiza listando do mais novo para o mais antigo, mostrando apenas a anamnese
+  tbody.innerHTML = tickets.slice().reverse().map(t => `
+    <tr>
+      <td><code style="font-size:12px; color:#185FA5;">#${t.id || t.id_paciente}</code></td>
+      <td>Pac. ID: ${t.id_paciente}</td>
+      <td>Méd. ID: ${t.id_medico}</td>
+      <td>Recep. ID: ${t.id_recepcionista || '—'}</td>
+      <td>${t.anamnese || t.subject || 'Consulta'}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td style="color:var(--color-text-secondary); font-size:12px;">${t.date}</td>
+    </tr>`).join('');
+}
+
+    document.getElementById('cad-cpf').addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'').slice(0,11);
+      if (v.length > 9) v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+      else if (v.length > 6) v = v.replace(/^(\d{3})(\d{3})(\d{0,3})$/, "$1.$2.$3");
+      else if (v.length > 3) v = v.replace(/^(\d{3})(\d{0,3})$/, "$1.$2");
+      this.value = v;
+    });
+
+    document.getElementById('reg-cpf').addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'').slice(0,11);
+      if (v.length > 9) v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+      else if (v.length > 6) v = v.replace(/^(\d{3})(\d{3})(\d{0,3})$/, "$1.$2.$3");
+      else if (v.length > 3) v = v.replace(/^(\d{3})(\d{0,3})$/, "$1.$2");
+      this.value = v;
+    });
+
+    window.onload = function() {
+  // Tenta recuperar se existe alguma sessão salva anteriormente
+  const sessaoSalva = localStorage.getItem('clinicamedica_session');
+
+  if (sessaoSalva) {
+    // Se existir, restaura os dados da sessão
+    currentSession = JSON.parse(sessaoSalva);
+
+    // Configura a interface gráfica para o painel logado
+    document.getElementById('user-name').textContent = currentSession.nome;
+    document.getElementById('user-role').textContent = 'Conectado';
+    document.getElementById('user-avatar').textContent = currentSession.nome.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    
+    // Pula a tela de login e vai direto para o sistema
+    document.getElementById('auth-screen').classList.remove('active');
+    document.getElementById('app-screen').classList.add('active');
+    
+    // Carrega os dados do Postgres normalmente
+    initData();
+  } else {
+    // Se não tiver ninguém salvo, apenas inicia os contadores zerados na tela de login
+    initData();
+  }
+};
+  </script>
+</body>
+</html>
