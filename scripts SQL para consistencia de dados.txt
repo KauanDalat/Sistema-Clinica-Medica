@@ -1,0 +1,47 @@
+GITHUB: https://github.com/KauanDalat/Sistema-Clinica-Medica
+CENÁRIO A: SUCESSO
+
+- Nesse cenário queremos realizar um atendimento normalmente, onde o resultado esperado é que seja de sucesso.
+
+- Vamos inserir alguns dados para registrar um paciente a um convenio
+
+- Vamos registrar o atendimento desse paciente 
+
+
+-- 1. Inicia a transação protetora
+BEGIN;
+
+-- 2. Insere o vínculo do paciente com o convênio
+
+INSERT INTO paciente_convenio (id_paciente, id_convenio, numero_carteirinha)
+VALUES (4, 2, '111222333444');
+
+-- 3. Registra o atendimento gerado
+INSERT INTO atendimento (data_hora_atendimento, valor_consulta, status, anamnese, id_recepcionista, id_medico, id_paciente)
+VALUES (CURRENT_TIMESTAMP, 150.00, 'Concluído', 'Check-up de rotina do convênio Bradesco.', 2, 1, 4);
+
+-- 4. Como os dois INSERTS funcionaram perfeitamente, salvamos tudo de vez
+COMMIT;
+
+
+
+
+CENARIO B: FALHA
+
+- Nesse cenário tentamos registrar um atendimento tentando vincular um id (99) inexistente no sistema, onde o resultado esperado é de falha.
+
+
+-- 1. Inicia a transação
+BEGIN;
+
+-- 2. Tenta registrar o atendimento com um ID de médico que não existe (ID 99)
+INSERT INTO atendimento (data_hora_atendimento, valor_consulta, status, anamnese, id_recepcionista, id_medico, id_paciente)
+VALUES (CURRENT_TIMESTAMP, 200.00, 'Agendado', 'Consulta de urgência.', 2, 99, 4);
+
+-- O Postgres vai disparar um erro dizendo que o médico 99 não existe.
+
+-- 3. Como houve um erro grave que quebra a consistência, desfazemos tudo o que foi tentado
+ROLLBACK;
+
+
+
